@@ -51,6 +51,7 @@ python -m pytest
 The tests cover core aggregation logic, contiguous window handling, error conditions, and CLI output formatting.
 
 ## Implementation Notes
-- Records are parsed into `TrafficRecord` dataclasses and sorted chronologically.
+- The CLI's `analyse_file` routine streams the file once, so memory use stays proportional to the number of days seen rather than the number of records.
+- Records are parsed into `TrafficRecord` dataclasses on the fly; legacy helpers still support batch-style parsing where needed.
 - Contiguous windows require exact 30-minute gaps to ensure the least-busy calculation ignores broken sequences.
 - Functions are pure where practical, making the code easier to test; the CLI composes these functions to produce the final report.

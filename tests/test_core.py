@@ -5,7 +5,9 @@ from textwrap import dedent
 import pytest
 
 from traffic_counter import (
+    AnalysisResult,
     TrafficRecord,
+    analyse_stream,
     parse_records,
     quietest_period,
     top_half_hours,
@@ -74,3 +76,17 @@ def test_quietest_period_requires_window(records):
 def test_traffic_record_rejects_negative_counts(records):
     with pytest.raises(ValueError):
         TrafficRecord(timestamp=records[0].timestamp, cars=-1)
+
+
+def test_analyse_stream_matches_batch(records, sample_text):
+    result = analyse_stream(sample_text.splitlines())
+    assert isinstance(result, AnalysisResult)
+    assert result.total == total_cars(records)
+    assert result.per_day == totals_by_day(records)
+    assert [item.cars for item in result.top_half_hours] == [14, 12, 11]
+    assert result.quietest_window is not None
+    assert tuple(entry.timestamp.isoformat() for entry in result.quietest_window) == (
+        "2021-12-02T07:00:00",
+        "2021-12-02T07:30:00",
+        "2021-12-02T08:00:00",
+    )

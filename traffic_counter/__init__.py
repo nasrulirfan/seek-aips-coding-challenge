@@ -1,5 +1,8 @@
 from .core import (
+    AnalysisResult,
     TrafficRecord,
+    analyse_file,
+    analyse_stream,
     parse_records,
     quietest_period,
     read_records,
@@ -9,7 +12,10 @@ from .core import (
 )
 
 __all__ = [
+    "AnalysisResult",
     "TrafficRecord",
+    "analyse_file",
+    "analyse_stream",
     "parse_records",
     "quietest_period",
     "read_records",
