@@ -42,6 +42,7 @@ def parse_records(lines: Iterable[str]) -> List[TrafficRecord]:
         except ValueError as exc:
             raise ValueError(f"Line {number} has invalid car count: {cars_str}") from exc
         records.append(TrafficRecord(timestamp=timestamp, cars=cars))
+    # Ensure downstream logic consumes records in chronological order.
     records.sort(key=lambda record: record.timestamp)
     return records
 
@@ -74,6 +75,7 @@ def contiguous_windows(records: Sequence[TrafficRecord], size: int) -> Iterable[
         raise ValueError("size must be positive")
     for start in range(len(records) - size + 1):
         window = records[start : start + size]
+        # Skip windows that include gaps; only strict 30-minute steps qualify.
         if all(window[index + 1].timestamp - window[index].timestamp == HALF_HOUR for index in range(size - 1)):
             yield tuple(window)
 
@@ -86,6 +88,7 @@ def quietest_period(records: Sequence[TrafficRecord], size: int = 3) -> tuple[Tr
         if best is None or window_total < best_total or (
             window_total == best_total and window[0].timestamp < best[0].timestamp
         ):
+            # On ties prefer the earliest start so results stay deterministic.
             best = window
             best_total = window_total
     if best is None:

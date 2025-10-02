@@ -46,9 +46,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         quiet_window = quietest_period(records, size=3)
     except ValueError:
+        # Not enough contiguous readings to form a 1.5-hour window.
         print("Least busy 1.5h period:")
         print("<not available>")
     else:
+        # Print summary and then the contributing half-hour slots.
         window_lines = [
             f"Start: {quiet_window[0].timestamp.isoformat()}",
             f"Total: {sum(record.cars for record in quiet_window)}",
